@@ -9,20 +9,18 @@ def create_vgg16(input_shape, classes = 3, fclayers=[2048, 1024], trainable=Fals
     """
     # Remove fully connected layer and replace
     vgg16_model = VGG16(include_top=False, weights=init, input_shape=input_shape, classes=classes)
+
     for layer in vgg16_model.layers:
         layer.trainable = trainable
 
-    model = Sequential()
-    # Add the mobilenet convolutional base model
-    model.add(vgg16_model)
-    # Add new layers
-    model.add(Flatten(name="flatten"))
+    x = tf.keras.layers.Flatten(name="flatten")(vgg16_model.output)
 
     for fc in fclayers:
-        model.add(Dense(fc, activation='relu'))
-        model.add(Dropout(0.3))
+        x = Dense(fc, activation="relu")(x)
+        x = Dropout(0.3)(x)
 
-    model.add(Dense(classes, activation='softmax'))
+    output = Dense(classes, activation="softmax")(x)
+    model = Model(vgg16_model.input, output)
     return model
 
 
@@ -35,18 +33,14 @@ def create_xception(input_shape, classes=3, fclayers=[2048, 1024], trainable=Fal
     for layer in xception_model.layers:
         layer.trainable = trainable
 
-    model = Sequential()
-    # Add the mobilenet convolutional base model
-    model.add(xception_model)
-    # Add new layers
-    model.add(GlobalAveragePooling2D())
+    x = tf.keras.layers.GlobalAveragePooling2D()(xception_model.output)
 
-    # adding Full Connected layer with Dropout
     for fc in fclayers:
-        model.add(Dense(fc, activation='relu'))
-        model.add(Dropout(0.3))
+        x = Dense(fc, activation="relu")(x)
+        x = Dropout(0.3)(x)
 
-    model.add(Dense(classes, activation='softmax'))
+    output = Dense(classes, activation="softmax")(x)
+    model = Model(xception_model.input, output)
     return model
 
 
@@ -60,18 +54,14 @@ def create_efficientB3(input_shape, classes=3, fclayers=[2048, 1024], trainable=
     for layer in efficient_model.layers:
         layer.trainable = trainable
 
-    model = Sequential()
-    # Add the mobilenet convolutional base model
-    model.add(efficient_model)
-    # Add new layers
-    model.add(GlobalAveragePooling2D())
+    x = tf.keras.layers.GlobalAveragePooling2D()(efficient_model.output)
 
-    # adding Full Connected layer with Dropout
     for fc in fclayers:
-        model.add(Dense(fc, activation='relu'))
-        model.add(Dropout(0.3))
+        x = Dense(fc, activation="relu")(x)
+        x = Dropout(0.3)(x)
 
-    model.add(Dense(classes, activation='softmax'))
+    output = Dense(classes, activation="softmax")(x)
+    model = Model(efficient_model.input, output)
     return model
 
 
@@ -79,7 +69,6 @@ def create_efficientB0(input_shape, classes=3, fclayers=[2048, 1024], trainable=
     """
     Architecture and adaptation of the VGG16 for our project
     """
-    print(input_shape)
     # Remove fully connected layer and replace
     efficient_model = EfficientNetB0(include_top=False, weights=init, input_shape=input_shape, classes=classes)
     for layer in efficient_model.layers:
@@ -93,22 +82,6 @@ def create_efficientB0(input_shape, classes=3, fclayers=[2048, 1024], trainable=
 
     output = Dense(classes, activation="softmax")(x)
     model = Model(efficient_model.input, output)
-
-
-    #model = Sequential()
-    # Add the mobilenet convolutional base model
-    #model.add(efficient_model)
-    # Add new layers
-    #model.add(GlobalAveragePooling2D())
-
-    ##BatchNormalization()
-
-    # adding Full Connected layer with Dropout
-    #for fc in fclayers:
-    #    model.add(Dense(fc, activation='relu'))
-    #    model.add(Dropout(0.3))
-
-    #model.add(Dense(classes, activation='softmax'))
     return model
 
 
@@ -121,27 +94,17 @@ def create_mobileV2(input_shape, classes=3, fclayers=[2048, 1024], trainable=Fal
     mobile_model = MobileNetV2(include_top=False, weights=init, input_shape=input_shape, classes=classes)
     for layer in mobile_model.layers:
         layer.trainable = trainable
+
     x = tf.keras.layers.GlobalAveragePooling2D()(mobile_model.output)
+
     for fc in fclayers:
         x = Dense(fc, activation="relu")(x)
         x = Dropout(0.3)(x)
 
     output = Dense(classes, activation="softmax")(x)
     model = Model(mobile_model.input, output)
-
-    #model = Sequential()
-    # Add the mobilenet convolutional base model
-    #model.add(mobile_model)
-    # Add new layers
-    #model.add(GlobalAveragePooling2D())
-
-    # adding Full Connected layer with Dropout
-    #for fc in fclayers:
-    #    model.add(Dense(fc, activation='relu'))
-    #    model.add(Dropout(0.3))
-
-    #model.add(Dense(classes, activation='softmax'))
     return model
+
 
 
 def compiling(model):
