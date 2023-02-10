@@ -37,7 +37,7 @@ generator_type = strategy_cfg['generator_type']
 # loading the different datasets (train, validation and test)
 print('Reading the dataset from {}'.format(hdf5_dir))
 file_train = read_hdf5(hdf5_dir, 'train', rows, cols)
-file_test = read_hdf5(hdf5_dir, 'gen', rows, cols)
+file_test = read_hdf5(hdf5_dir, 'test', rows, cols)
 
 x = file_train["/images"]
 y = file_train["/meta"]

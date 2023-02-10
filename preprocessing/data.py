@@ -44,7 +44,7 @@ def load_data(datapath, subset='train', rows=256, cols=256):
     return images, labels
 
 
-def read_hdf5(hdf5_dir=Path('../../'), subset='train', rows=256, cols=256):
+def read_hdf5(hdf5_dir=Path('./'), subset='train', rows=256, cols=256):
     """ Reads image from HDF5.
         Parameters:
         ---------------
@@ -64,7 +64,7 @@ def read_hdf5(hdf5_dir=Path('../../'), subset='train', rows=256, cols=256):
     return file #images, labels
 
 
-def store_hdf5(images, labels, out_dir=Path('../../'), subset='train', rows=256, cols=256):
+def store_hdf5(images, labels, out_dir=Path('./'), subset='train', rows=256, cols=256):
     """ Stores an array of images to HDF5.
         Parameters:
         ---------------
@@ -107,5 +107,5 @@ if __name__ == '__main__':
     print(args)
     convert(args.datapath, args.destpath, args.set, args.rows, args.cols)
 
-# python3 data.py -o OUTPUT_PATH -d DATAPATH/statefarm/ -r 256 -c 256 -s train
-# python3 data.py -o OUTPUT_PATH -d DATAPATH/statefarm/ -r 256 -c 256 -s test
+# python data.py -o OUTPUT_PATH -d DATAPATH/statefarm/ -r 256 -c 256 -s train
+# python data.py -o OUTPUT_PATH -d DATAPATH/statefarm/ -r 256 -c 256 -s test
