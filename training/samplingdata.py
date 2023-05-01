@@ -4,6 +4,7 @@ from imblearn.tensorflow import balanced_batch_generator
 import tensorflow as tf
 from tensorflow.keras.utils import Sequence
 
+
 class BalancedDataGenerator(Sequence):
     """
     ImageDataGenerator + RandomOverSampling
@@ -16,6 +17,7 @@ class BalancedDataGenerator(Sequence):
     undersampling: boolean, True for balancing a batch using Undersampling and
                 False for using Oversampling.
     """
+
     def __init__(self, x, y, datagen, batch_size=32, undersampling=True):
         self.datagen = datagen
         self.batch_size = min(batch_size, x.shape[0])
@@ -27,8 +29,8 @@ class BalancedDataGenerator(Sequence):
 
         else:
             self.gen, self.steps_per_epoch = balanced_batch_generator(x.reshape(x.shape[0], -1), y,
-                                                                  sampler=RandomOverSampler(),
-                                                                  batch_size=self.batch_size, keep_sparse=True)
+                                                                      sampler=RandomOverSampler(),
+                                                                      batch_size=self.batch_size, keep_sparse=True)
         self._shape = (self.steps_per_epoch * batch_size, *x.shape[1:])
 
     def __len__(self):

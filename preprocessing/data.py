@@ -11,6 +11,7 @@ import numpy as np
 import argparse
 import random
 
+
 def dir_path(string):
     try:
         os.path.isdir(string)
@@ -22,15 +23,15 @@ def dir_path(string):
 def load_image(path, rows=256, cols=256):
     img = cv2.imread(path)
     img = cv2.resize(img, (rows, cols), cv2.INTER_LINEAR)
-#    resized = img.astype('float32')
-#    mean = [103.939, 116.779, 123.68]
-#    resized[:, :, 0] -= mean[0]
-#    resized[:, :, 1] -= mean[1]
-#    resized[:, :, 2] -= mean[2]
-    #cv2.imshow("image", img)
-    #cv2.imshow("image_orig", cv2.imread(path))
-    #cv2.waitKey(0)
-    return img #resized.astype('uint8')
+    #    resized = img.astype('float32')
+    #    mean = [103.939, 116.779, 123.68]
+    #    resized[:, :, 0] -= mean[0]
+    #    resized[:, :, 1] -= mean[1]
+    #    resized[:, :, 2] -= mean[2]
+    # cv2.imshow("image", img)
+    # cv2.imshow("image_orig", cv2.imread(path))
+    # cv2.waitKey(0)
+    return img  # resized.astype('uint8')
 
 
 def load_data(datapath, subset='train', rows=256, cols=256):
@@ -59,9 +60,9 @@ def read_hdf5(hdf5_dir=Path('./'), subset='train', rows=256, cols=256):
     images, labels = [], []
     # Open the HDF5 file
     file = h5py.File(hdf5_dir / f"driver_distraction_{rows}x{cols}_{subset}.h5", "r+")
-    #images = np.array(file["/images"]).astype(float)
-    #labels = np.array(file["/meta"]).astype(int)
-    return file #images, labels
+    # images = np.array(file["/images"]).astype(float)
+    # labels = np.array(file["/meta"]).astype(int)
+    return file  # images, labels
 
 
 def store_hdf5(images, labels, out_dir=Path('./'), subset='train', rows=256, cols=256):
@@ -77,7 +78,7 @@ def store_hdf5(images, labels, out_dir=Path('./'), subset='train', rows=256, col
     # Create a new HDF5 file
     file = h5py.File(out_dir / f"driver_distraction_{rows}x{cols}_{subset}.h5", "w")
     # Create a dataset in the file
-    print('\tas ',file)
+    print('\tas ', file)
     dataset = file.create_dataset(
         "images", np.shape(images), np.uint8, data=images, compression="gzip", chunks=True
     )
@@ -97,11 +98,11 @@ def convert(datapath, output, subset, rows, cols):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description = 'Converting the whole dataset into one h5 file.')
+    parser = argparse.ArgumentParser(description='Converting the whole dataset into one h5 file.')
     parser.add_argument("-d", "--datapath", help="path of the dataset", type=dir_path, required=True)
-    parser.add_argument("-o", "--destpath", help="path where to write the output file",required=True)
-    parser.add_argument("-r", "--rows", help="row size, default 256",type=int, default=256)
-    parser.add_argument("-c", "--cols", help="column size, default 256",type=int, default=256)
+    parser.add_argument("-o", "--destpath", help="path where to write the output file", required=True)
+    parser.add_argument("-r", "--rows", help="row size, default 256", type=int, default=256)
+    parser.add_argument("-c", "--cols", help="column size, default 256", type=int, default=256)
     parser.add_argument("-s", "--set", help="data subset could be train or test", type=str, default='train')
     args = parser.parse_args()
     print(args)

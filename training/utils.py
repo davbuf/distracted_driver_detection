@@ -28,8 +28,8 @@ def mix_up(ds_one, ds_two, alpha=0.2):
     return (images, labels)
 
 
-def train_val_split(x,y, val_ratio=0.1):
-    pivot = x.shape[0] - round(x.shape[0]*val_ratio)
+def train_val_split(x, y, val_ratio=0.1):
+    pivot = x.shape[0] - round(x.shape[0] * val_ratio)
     return x[:pivot], y[:pivot], x[pivot:], y[pivot:]
 
 
@@ -38,5 +38,5 @@ def preprocess_labels(y, classes):
 
 
 def compute_class_weight(y):
-   return dict(zip(np.unique(y),
-                            class_weight.compute_class_weight('balanced', classes=np.unique(y), y=y)))
+    return dict(zip(np.unique(y),
+                    class_weight.compute_class_weight('balanced', classes=np.unique(y), y=y)))

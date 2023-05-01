@@ -26,7 +26,7 @@ def input_processing(augmentation=True):
 def batch_image_generator(images, labels, batch_size, data_augmentation, data_subpart=False):
     sample_count = len(labels)
     while True:
-        for index in range(sample_count//batch_size):
+        for index in range(sample_count // batch_size):
             start = index * batch_size
             end = (index + 1) * batch_size
             ys = labels[start: end]
@@ -45,20 +45,21 @@ def batch_image_generator(images, labels, batch_size, data_augmentation, data_su
                 yield generator[0], generator[1]
 
 
-def data_generator(x_train, y_train, x_vali, y_vali, gen_type='vanilla', batch_size=32, train_gen=None, vali_gen=None, input_shape=(128,128,3)):
+def data_generator(x_train, y_train, x_vali, y_vali, gen_type='vanilla', batch_size=32, train_gen=None, vali_gen=None,
+                   input_shape=(128, 128, 3)):
     if 'un' in gen_type.lower():
         training_generator = BalancedDataGenerator(x_train, y_train, train_gen,
-                                                       batch_size=batch_size, undersampling=True)
+                                                   batch_size=batch_size, undersampling=True)
         validation_generator = BalancedDataGenerator(x_vali, y_vali, vali_gen,
-                                                         batch_size=batch_size, undersampling=True)
+                                                     batch_size=batch_size, undersampling=True)
         return training_generator, validation_generator
 
     if 'ov' in gen_type.lower():
         training_generator = BalancedDataGenerator(x_train, y_train, train_gen,
-                                                       batch_size=batch_size, undersampling=False)
+                                                   batch_size=batch_size, undersampling=False)
         validation_generator = BalancedDataGenerator(x_vali, y_vali, vali_gen,
-                                                         batch_size=batch_size, undersampling=False)
-        #steps_per_epoch = balanced_gen_train.steps_per_epoch
+                                                     batch_size=batch_size, undersampling=False)
+        # steps_per_epoch = balanced_gen_train.steps_per_epoch
         return training_generator, validation_generator
 
     if 'mixup' in gen_type.lower():
@@ -100,8 +101,6 @@ def data_generator(x_train, y_train, x_vali, y_vali, gen_type='vanilla', batch_s
 
 def fitting(training_generator, validation_generator, model, warmstart,
             nb_steps_training, nb_steps_val, modelname, nb_epoch=10, class_weight=None):
-
-
     checkpoint_path = "./logs/" + modelname + "/cpft-{epoch:04d}.ckpt"
     cp_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=checkpoint_path,
@@ -111,9 +110,9 @@ def fitting(training_generator, validation_generator, model, warmstart,
         period=3)
     csv_eval_path = "./logs/" + modelname + "/training_startingfrom" + warmstart + ".log"
     csv_callback = tf.keras.callbacks.CSVLogger(csv_eval_path)
-    #early_stopping = tf.keras.callbacks.EarlyStopping(
-    #    monitor="val_loss", patience=5, restore_best_weights=True
-    #)
+    early_stopping = tf.keras.callbacks.EarlyStopping(
+        monitor="val_loss", patience=3, restore_best_weights=True
+    )
     model.save_weights(checkpoint_path.format(epoch=0))
     history = model.fit(training_generator,
                         steps_per_epoch=nb_steps_training,
@@ -123,14 +122,12 @@ def fitting(training_generator, validation_generator, model, warmstart,
                         validation_data=validation_generator,
                         validation_steps=nb_steps_val,
                         initial_epoch=int(warmstart),
-                        callbacks=[cp_callback, csv_callback])
+                        callbacks=[cp_callback, csv_callback, early_stopping])
     return model, history
 
 
-
-def training_model(x,y, model, modelname, nb_epoch=10, warmstart='0', batch_size=32, generator_type='vanilla',
-                   augmentation=True, class_weight=False, vali_ratio=0.2, input_shape=(128,128,3)):
-
+def training_model(x, y, model, modelname, nb_epoch=10, warmstart='0', batch_size=32, generator_type='vanilla',
+                   augmentation=True, class_weight=False, vali_ratio=0.2, input_shape=(128, 128, 3)):
     # data augmentation or not?
     train_datagen, validation_datagen = input_processing(augmentation)
     cw = None
@@ -142,7 +139,8 @@ def training_model(x,y, model, modelname, nb_epoch=10, warmstart='0', batch_size
     # split the set into train and validation
     x_train, y_train, x_vali, y_vali = train_val_split(x, y, vali_ratio)
     # how the batch is created, using: mixup, oversampling, undersampling, or vanilla version
-    training_generator, validation_generator = data_generator(x_train, y_train, x_vali, y_vali, generator_type, batch_size,
+    training_generator, validation_generator = data_generator(x_train, y_train, x_vali, y_vali, generator_type,
+                                                              batch_size,
                                                               train_datagen, validation_datagen, input_shape)
 
     if 'un' in generator_type.lower() or 'ov' in generator_type.lower():
@@ -151,5 +149,6 @@ def training_model(x,y, model, modelname, nb_epoch=10, warmstart='0', batch_size
     else:
         nb_steps_training = len(y_train) // batch_size
         nb_steps_val = len(y_vali) // batch_size
+
     return fitting(training_generator, validation_generator, model, warmstart,
                    nb_steps_training, nb_steps_val, modelname, nb_epoch=nb_epoch, class_weight=cw)

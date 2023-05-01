@@ -8,7 +8,7 @@ import os
 
 config_file = 'config.ini'
 print('Reading {} as the configuration file'.format(config_file))
-config_object = ConfigParser(comment_prefixes=('#',';'))
+config_object = ConfigParser(comment_prefixes=('#', ';'), allow_no_value=True)
 config_object.read(config_file)
 
 data_cfg = config_object['DATA']
@@ -22,7 +22,7 @@ input_shape = (rows, cols, 3)
 model_name = model_cfg['model_name']
 init = model_cfg['init']
 trainable = model_cfg.getboolean('trainable')
-fc_layers= list(map(int, eval(model_cfg['fc_layers'])))
+fc_layers = list(map(int, eval(model_cfg['fc_layers'])))
 classes = int(model_cfg['classes'])
 nb_epoch = int(model_cfg['nb_epoch'])
 warm_start = model_cfg['warm_start']
@@ -47,16 +47,17 @@ yt = file_test["/meta"]
 
 print('Creating a {} model'.format(model_name))
 model = create_model(model_name, input_shape, classes, fc_layers, trainable, init)
-compiling(model)
+compiling(model, finetuning=trainable)
 model.summary()
+
 if warm_start != str(0):
     print('Continue the training by loading the checkpoint from epoch {}'.format(warm_start))
     loading_checkpoint(model, model_name, warm_start)
 
 print('Start training the model')
 model, history = training_model(x, y, model, model_name, nb_epoch=nb_epoch, warmstart=warm_start, batch_size=batch_size,
-               generator_type=generator_type,augmentation=augmentation, class_weight=class_weight,
-               vali_ratio=vali_ratio, input_shape=input_shape)
+                                generator_type=generator_type, augmentation=augmentation, class_weight=class_weight,
+                                vali_ratio=vali_ratio, input_shape=input_shape)
 
 print('Evaluating the model on the test set and store everything in {}'.format(models_dir))
-evaluation(xt, yt, model, history, os.path.join(models_dir,model_name))
+evaluation(xt, yt, model, history, os.path.join(models_dir, model_name))

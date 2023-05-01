@@ -3,7 +3,8 @@ from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.applications import EfficientNetB0, Xception, EfficientNetB3, MobileNetV2, VGG16
 from tensorflow.keras.layers import Flatten, Dense, Dropout, GlobalAveragePooling2D
 
-def create_vgg16(input_shape, classes = 3, fclayers=[2048, 1024], trainable=False, init='imagenet'):
+
+def create_vgg16(input_shape, classes=3, fclayers=[2048, 1024], trainable=False, init='imagenet'):
     """
     Architecture and adaptation of the VGG16 for our project
     """
@@ -11,6 +12,9 @@ def create_vgg16(input_shape, classes = 3, fclayers=[2048, 1024], trainable=Fals
     vgg16_model = VGG16(include_top=False, weights=init, input_shape=input_shape, classes=classes)
 
     for layer in vgg16_model.layers:
+        # BatchNorm layers should be put on False during fine-tuning
+        if '_bn' in layer.name:
+            layer.trainable = False
         layer.trainable = trainable
 
     x = tf.keras.layers.Flatten(name="flatten")(vgg16_model.output)
@@ -31,6 +35,9 @@ def create_xception(input_shape, classes=3, fclayers=[2048, 1024], trainable=Fal
     # Remove fully connected layer and replace
     xception_model = Xception(include_top=False, weights=init, input_shape=input_shape, classes=classes)
     for layer in xception_model.layers:
+        # BatchNorm layers should be put on False during fine-tuning
+        if '_bn' in layer.name:
+            layer.trainable = False
         layer.trainable = trainable
 
     x = tf.keras.layers.GlobalAveragePooling2D()(xception_model.output)
@@ -44,7 +51,6 @@ def create_xception(input_shape, classes=3, fclayers=[2048, 1024], trainable=Fal
     return model
 
 
-
 def create_efficientB3(input_shape, classes=3, fclayers=[2048, 1024], trainable=False, init='imagenet'):
     """
     Architecture and adaptation of the VGG16 for our project
@@ -52,6 +58,9 @@ def create_efficientB3(input_shape, classes=3, fclayers=[2048, 1024], trainable=
     # Remove fully connected layer and replace
     efficient_model = EfficientNetB3(include_top=False, weights=init, input_shape=input_shape, classes=classes)
     for layer in efficient_model.layers:
+        # BatchNorm layers should be put on False during fine-tuning
+        if '_bn' in layer.name:
+            layer.trainable = False
         layer.trainable = trainable
 
     x = tf.keras.layers.GlobalAveragePooling2D()(efficient_model.output)
@@ -72,6 +81,9 @@ def create_efficientB0(input_shape, classes=3, fclayers=[2048, 1024], trainable=
     # Remove fully connected layer and replace
     efficient_model = EfficientNetB0(include_top=False, weights=init, input_shape=input_shape, classes=classes)
     for layer in efficient_model.layers:
+        # BatchNorm layers should be put on False during fine-tuning
+        if '_bn' in layer.name:
+            layer.trainable = False
         layer.trainable = trainable
 
     x = tf.keras.layers.GlobalAveragePooling2D()(efficient_model.output)
@@ -85,7 +97,6 @@ def create_efficientB0(input_shape, classes=3, fclayers=[2048, 1024], trainable=
     return model
 
 
-
 def create_mobileV2(input_shape, classes=3, fclayers=[2048, 1024], trainable=False, init='imagenet'):
     """
     Architecture and adaptation of the VGG16 for our project
@@ -93,6 +104,9 @@ def create_mobileV2(input_shape, classes=3, fclayers=[2048, 1024], trainable=Fal
     # Remove fully connected layer and replace
     mobile_model = MobileNetV2(include_top=False, weights=init, input_shape=input_shape, classes=classes)
     for layer in mobile_model.layers:
+        # BatchNorm layers should be put on False during fine-tuning
+        if '_bn' in layer.name:
+            layer.trainable = False
         layer.trainable = trainable
 
     x = tf.keras.layers.GlobalAveragePooling2D()(mobile_model.output)
@@ -106,9 +120,11 @@ def create_mobileV2(input_shape, classes=3, fclayers=[2048, 1024], trainable=Fal
     return model
 
 
-
-def compiling(model):
-    initial_learning_rate = 0.01
+def compiling(model, finetuning=False):
+    if finetuning:
+        initial_learning_rate = 0.001
+    else:
+        initial_learning_rate = 0.01
     first_decay_steps = 500
     lr_decayed_fn = tf.keras.experimental.CosineDecayRestarts(
         initial_learning_rate, first_decay_steps
@@ -160,5 +176,5 @@ def create_model(name, input_shape, classes, fclayers, trainable, init):
     if 'mobile' in name.lower():
         return create_mobileV2(input_shape, classes, fclayers, trainable, init)
     raise AttributeError(
-        'The model' + str(name) + ' is not available. Choice: VGG16, XceptionNet, EfficientNet (B0 or B3) and MobileV2Net')
-
+        'The model' + str(
+            name) + ' is not available. Choice: VGG16, XceptionNet, EfficientNet (B0 or B3) and MobileV2Net')

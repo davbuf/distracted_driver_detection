@@ -25,11 +25,11 @@ def plot_hist(history, filename):
     ax2.set_xlabel('Iteration', fontsize=12)
     ax2.set_title('Learning Curve', fontsize=14)
     ax2.legend(['Training Loss', 'Validation Loss'], fontsize=12, loc='best')
-    plt.savefig(filename+'.png')
-    #plt.show()
+    plt.savefig(filename + '.png')
+    # plt.show()
 
 
-def plot_confmat(confmatrix, confname, labels=['safe','phone','watch']):
+def plot_confmat(confmatrix, confname, labels=['safe', 'phone', 'watch']):
     plt.figure(figsize=(8, 6))
     sns.set(style='whitegrid', palette='muted', font_scale=1.5)
     sns.heatmap(confmatrix, xticklabels=labels, yticklabels=labels, annot=True, fmt="d");
@@ -37,8 +37,8 @@ def plot_confmat(confmatrix, confname, labels=['safe','phone','watch']):
     plt.ylabel('True label')
     # plt.ylim((16,14))
     plt.xlabel('Predicted label')
-    plt.savefig(confname+'.png')
-    #plt.show()
+    plt.savefig(confname + '.png')
+    # plt.show()
 
 
 def get_img_array(img_array):
@@ -94,7 +94,7 @@ def make_gradcam_img(img, heatmap, cam_path="cam.jpg", alpha=0.4):
 
     # Create an image with RGB colorized heatmap
     jet_heatmap = keras.preprocessing.image.array_to_img(jet_heatmap)
-    jet_heatmap = jet_heatmap.resize((128,128))
+    jet_heatmap = jet_heatmap.resize((128, 128))
     jet_heatmap = keras.preprocessing.image.img_to_array(jet_heatmap)
 
     # Superimpose the heatmap on original image
@@ -114,4 +114,4 @@ def view_img(img_arrs, n_samples, filedir):
         ax = fig.add_subplot(n_rows, n_cols, i + 1, xticks=[], yticks=[])
         ax.imshow(img_arrs[i])
         ax.axis("off")
-    plt.savefig(os.path.join(filedir,'gradcam_img_examples.png'))
+    plt.savefig(os.path.join(filedir, 'gradcam_img_examples.png'))
